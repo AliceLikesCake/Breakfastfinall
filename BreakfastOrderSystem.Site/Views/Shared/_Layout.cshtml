@@ -1,0 +1,97 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - 早餐店後台系統</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="~/Content/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="https://kit.fontawesome.com/4ac8f2d444.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+</head>
+<body>
+
+    <div class="container-fluid">
+        <!-- 側邊欄 -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header text-center" style="padding: 20px;">
+                <img src="~/Content/images/logo.png" alt="Logo">
+                <h5>佳佳早餐店後台</h5>
+            </div>
+            <nav class="nav flex-column">
+                <div class="nav-item">
+                    <a class="nav-link" id="1" href="@Url.Action("Index", "Home")"><i class="fas fa-home"></i> <span>後台首頁</span></a>
+                </div>
+                <div class="nav-item">
+                    <a class="nav-link" id="2" href="@Url.Action("Index", "Store")"><i class="fas fa-store"></i>  <span>商店管理</span></a>
+                </div>
+                <div class="nav-item nested-menu">
+                    <a class="nav-link toggle-submenu" href="javascript:void(0);"> <i class="fas fa-box-open"></i> <span>商品管理</span></a>
+                    <div class="submenu-wrapper">
+                        <div class="submenu">
+                            <a class="nav-link" id="3" href="@Url.Action("Index", "AddOnOption")"> <i class="fas fa-tags"></i> <span>加選群組管理</span></a>
+                            <a class="nav-link" id="5" href="@Url.Action("Index", "ProductCategory")"> <i class="fas fa-th-large"></i> <span>商品類別管理</span></a>
+                            <a class="nav-link" id="6" href="@Url.Action("Index", "Product")"> <i class="fas fa-box"></i> <span>商品資訊管理</span></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="nav-item nested-menu">
+                    <a class="nav-link toggle-submenu" href="javascript:void(0);"><i class="fas fa-users"></i> <span>會員管理</span></a>
+                    <div class="submenu-wrapper">
+                        <div class="submenu">
+                            <a class="nav-link" id="7" href="@Url.Action("MemberDetails", "Member")"> <i class="fas fa-user"></i> <span>會員明細</span></a>
+                            <a class="nav-link" id="8" href="@Url.Action("Blacklist", "Member")"> <i class="fas fa-ban"></i> <span>黑名單管理</span></a>
+                            <a class="nav-link" id="9" href="@Url.Action("PointDetails", "Point")"> <i class="fas fa-coins"></i> <span>會員點數明細</span></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="nav-item nested-menu">
+                    <a class="nav-link toggle-submenu" href="javascript:void(0);"><i class="fas fa-chart-line"></i> <span>營業報告</span></a>
+                    <div class="submenu-wrapper">
+                        <div class="submenu">
+                            <a class="nav-link" id="10" href="@Url.Action("Index", "Report")"><i class="fas fa-chart-pie"></i> <span>營業概況</span></a>
+                            <a class="nav-link" id="11" href="@Url.Action("Index2", "Report")"> <i class="fas fa-chart-bar"></i> <span>營業趨勢圖</span></a>
+                            <a class="nav-link" id="12" href="@Url.Action("Index3", "Report")"> <i class="fas fa-table"></i> <span>商品銷售統計</span></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="nav-item">
+                    <a class="nav-link" id="13" href="@Url.Action("OrderList", "Orderlist")"><i class="fas fa-list"></i> <span>訂單列表</span></a>
+                </div>
+            </nav>
+        </div>
+
+        <!-- 頂部欄 -->
+        <div class="top-bar" id="top-bar">
+            <div class="greeting">Hi, @Session["UserName"]</div>
+            <div class="user-icon" style="display: flex; align-items: center;">
+                <a href="@Url.Action("Logout", "Login")" class="logout-link" style="display: flex; align-items: center; text-decoration: none; color: inherit; flex-direction:row">
+                    <i class="fa-solid fa-door-open" style="color: rgba(39, 38, 38, 0.869); margin-right: 5px;"></i>登出
+                </a>
+            </div>
+        </div>
+
+        <!-- 主內容區塊 -->
+        <div class="main-content-wrapper" id="main-content-wrapper">
+            <!-- 這裡會動態渲染不同的頁面內容 -->
+            <div class="main-content" id="main-content">
+                @RenderBody()
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal container -->
+    <div id="modal-container"></div>
+
+    @*<script src="~/Scripts/function.js"></script>
+    <script src="~/Scripts/loadOperationGraph.js"></script>*@
+    <script src="~/Scripts/script.js"></script>
+
+    @RenderSection("scripts", required: false)
+</body>
+</html>

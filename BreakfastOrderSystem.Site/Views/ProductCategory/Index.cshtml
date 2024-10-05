@@ -1,0 +1,939 @@
+﻿@model IEnumerable<BreakfastOrderSystem.Site.Models.ViewModels.ProductCategoryVm>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+
+
+<h2 style="font-weight:bolder">商品類別管理</h2>
+
+<div class="row mb-3">
+    <div class="col-12">
+        <div class="d-flex align-items-center justify-content-between">
+            <!-- 左側的按鈕 -->
+            <button id="showModalBtn">
+                <i class="fas fa-plus"></i> 新增商品類別
+            </button>
+
+            <div class="modal fade modal-style" id="addCategoryModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3 class="modal-title" id="staticBackdropLabel">新增商品類別</h3>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            @using (Html.BeginForm("Create", "ProductCategory", FormMethod.Post, new { id = "createCategoryForm", enctype = "multipart/form-data" }))
+                            {
+                                <input type="hidden" name="Id" id="Id" value="" />
+                                <input type="hidden" id="deleteImageField" name="DeleteImage" value="false" />
+                                <div class="alert alert-danger" id="errorMessage" style="display:none;"></div>
+                                <div class="form-group">
+                                    <label for="Name" class="col-form-label form-label-custom">商品類別名稱:<span class="required">*</span></label>
+                                    <input type="text" class="form-control" id="Name" name="Name" style="width: auto;" />
+                                </div>
+                                <div class="form-group">
+                                    <label for="DisplayOrder" class="col-form-label form-label-custom">商品類別排序:<span class="required">*</span></label>
+                                    <input type="text" class="form-control" id="DisplayOrder" name="DisplayOrder" style="width: auto;" />
+                                </div>
+                                <div id="img-container">
+                                    <div class="form-group">
+                                        <label class="col-form-label form-label-custom" for="upload-img">上傳圖片：</label>
+                                        <button id="upload-img-btn" class="btn btn-secondary btn-add" type="button">上傳</button>
+                                        <input type="file" id="upload-img" name="Image" class="d-none" accept="image/*" />
+                                        <button id="delete-img-btn" class="delete-img-btn" type="button"><i class="fa-solid fa-trash"></i></button>
+                                    </div>
+                                    <div id="file-name-container" style="margin-top: 10px; display: none;">
+                                        <span id="file-name-text" style="color: green; font-weight: bold;"></span>
+                                    </div>
+                                </div>
+
+
+                                <div class="modal-footer" style="justify-content: center;">
+                                    <button type="submit" class="btn btn-secondary">儲存</button>
+                                </div>
+                            }
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右側的搜索框和按鈕 -->
+            <div class="d-flex align-items-center">
+                <div class="input-group me-2" style="margin-bottom:7px">
+                    <span class="input-group-text" id="basic-addon1">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </span>
+                    <input type="text" class="form-control" id="searchInput" placeholder="請輸入內容" style="background-color:white;" aria-label="Username" aria-describedby="basic-addon1">
+                </div>
+                <button type="button" class="custom-btn" id="searchButton" style="width: 100px;">搜尋</button>
+            </div>
+        </div>
+    </div>
+</div>
+<table class="custom-table">
+    <thead>
+        <tr>
+            <th>圖片</th>
+            <th>名稱</th>
+            <th>排序</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+
+    <tbody id="productCategoryTableBody">
+        <!-- 這裡將由 JavaScript 動態填充 -->
+    </tbody>
+
+    @*@foreach (var item in Model) {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Image)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DisplayOrder)
+                </td>
+                <td>
+                    @Html.ActionLink("Edit", "Edit", new { id=item.Id }) |
+                    @Html.ActionLink("Details", "Details", new { id=item.Id }) |
+                    @Html.ActionLink("Delete", "Delete", new { id=item.Id })
+                </td>
+            </tr>
+        }*@
+
+</table>
+@*分頁*@
+<nav aria-label="Page navigation">
+    <ul class="pagination" id="pagination">
+        <!-- 分頁按鈕將由 JavaScript 動態填充 -->
+    </ul>
+</nav>
+<style>
+    /* **************************************分頁項的基本樣式 *************************************************************/
+    .page-item {
+        display: inline-block;
+        margin: 0 5px; /* 每個分頁按鈕之間的間距 */
+    }
+
+    /* 分頁鏈接的基本樣式 */
+    .page-link {
+        display: block;
+        /*padding: 8px 12px;*/ /* 調整內邊距，讓按鈕更大一些 */
+        background-color: #DFF3EC; /* 淡綠色背景 */
+        color: #333; /* 文字顏色 */
+        border-radius: 5px; /* 圓角 */
+        text-decoration: none; /* 去除默認的下劃線 */
+        font-weight: bold;
+        transition: background-color 0.3s ease, color 0.3s ease; /* 添加過渡效果 */
+    }
+
+    /* 當前頁面的樣式 */
+    .page-item.active .page-link {
+        background-color: #499e73; /* 深綠色背景 */
+        color: white; /* 白色文字 */
+        cursor: default; /* 當前頁面不允許點擊 */
+        border: none !important;
+    }
+
+    /* 分頁鏈接的懸停樣式 */
+    .page-link:hover {
+        background-color: #74c69d; /* 懸停時的顏色 */
+        color: white;
+    }
+
+    /* 禁用上一頁/下一頁時的樣式 */
+    .page-item.disabled .page-link {
+        background-color: #f0f0f0; /* 灰色背景 */
+        color: #ccc; /* 灰色文字 */
+        cursor: not-allowed; /* 禁用的鼠標樣式 */
+    }
+
+    .pagination {
+        position: fixed;
+        bottom: 60px; /* 距離底部 20px */
+        left: 55%; /* 使其相對於頁面水平居中 */
+        transform: translateX(-50%); /* 偏移自身寬度的一半，達到真正居中效果 */
+        z-index: 1000; /* 確保分頁按鈕位於其他元素之上 */
+        /*background-color: #f8f9fa;*/ /* 背景顏色 */
+        padding: 10px 20px;
+        border-radius: 5px; /* 圓角 */
+        /*box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);*/ /* 添加陰影效果 */
+    }
+
+    /*******************************************按扭樣式*****************************************************************/
+    #showModalBtn {
+        margin-top: 10px;
+        /*margin-left: -10px;*/ /* 向左移動 20px，值可以根據需求調整 */
+        background-color: #b7e4c7 !important; /* 淡綠色背景 */
+        color: white; /* 文字顏色 */
+        font-weight: bolder;
+        padding: 10px 20px; /* 調整內邊距 */
+        border: none; /* 去除邊框 */
+        border-radius: 5px; /* 圓角 */
+        font-size: 16px; /* 調整字體大小 */
+        cursor: pointer; /* 鼠標變成手指 */
+        transition: all 0.3s ease; /* 過渡效果 */
+        /* 立體效果的陰影 */
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.1); /* 陰影效果 */
+    }
+
+        #showModalBtn:hover {
+            color: white;
+            background-color: #499e73 !important; /* 深綠色背景 */
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1); /* 改變陰影讓按鈕看起來被按下去 */
+            transform: translateY(2px); /* 輕微向下移動，讓它看起來像是被按下去 */
+        }
+
+        #showModalBtn:active {
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.1); /* 更小的陰影效果，模擬按下 */
+            transform: translateY(4px); /* 按下時進一步移動 */
+        }
+
+    /* 通用按鈕樣式 */
+    .custom-btn {
+        display: inline-block;
+        padding: 8px 15px;
+        border-radius: 5px;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: bold;
+        color: white;
+        margin-right: 10px;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+        /*display: inline-flex;*/ /* 讓圖標和文字水平對齊 */
+        align-items: center; /* 讓文字居中對齊 */
+        justify-content: center; /* 讓文字在按鈕中間水平居中 */
+    }
+
+
+        /* 懸停效果 */
+        .custom-btn:hover {
+            background-color: #499e73; /* 懸停時使用更深的綠色 */
+            transform: translateY(-2px); /* 懸停時按鈕輕微上移 */
+        }
+
+    /* 修改按鈕的樣式 */
+    .edit-btn {
+        background-color: #DFF3EC; /* 使用綠色作為背景色 */
+        color: rgb(95, 154, 132); /* 文字顏色為白色 */
+        border: 1px solid #74C69D; /* 使用深綠色作為邊框 */
+    }
+
+        .edit-btn:hover {
+            background-color: #74C69D; /* 懸停時變成更深的綠色 */
+            color: white;
+            transform: translateY(-2px); /* 懸停時按鈕輕微上移 */
+        }
+
+    /* 刪除按鈕的樣式 */
+    .delete-btn {
+        background-color: #FFE6E6; /* 淡紅色背景 */
+        color: rgb(201, 101, 101);
+        border: 1px solid rgb(201, 101, 101);
+    }
+
+        .delete-btn:hover {
+            background-color: rgb(201, 101, 101);
+            color: white;
+            transform: translateY(-2px); /* 懸停時按鈕輕微上移 */
+        }
+
+    #searchButton {
+        background-color: #f1f1f1; /* 使用綠色作為背景色 */
+        color: dimgrey; /* 文字顏色為白色 */
+        border: #74C69D; /* 使用深綠色作為邊框 */
+    }
+
+    /* 按鈕圖標樣式 */
+    .custom-btn i {
+        margin-right: 5px; /* 圖標與文字之間的間距 */
+    }
+
+    /* 專門針對自定義的刪除按鈕 */
+    .custom-remove-btn {
+        border: none; /* 去掉邊框 */
+        background: none; /* 無背景 */
+        color: red; /* 紅色字體 */
+        cursor: pointer; /* 鼠標移上時顯示為手型 */
+        font-size: 16px; /* 調整大小 */
+        padding: 0; /* 去掉內邊距 */
+        margin-left: 5px; /* 與文字的間距 */
+    }
+
+        .custom-remove-btn:hover {
+            color: darkred; /* 懸停時顯示深紅色 */
+        }
+
+        /* 圖標樣式也可以單獨定義 */
+        .custom-remove-btn i {
+            pointer-events: none; /* 禁用對圖標的點擊 */
+        }
+
+    .addon-items {
+        background-color: #95d5b2;
+        color: white;
+        padding: 5px;
+        border-radius: 5px;
+        margin-left: 3px;
+    }
+
+/*******************************************model******************************************************/
+    /* 標題和必填標記樣式 */
+    .modal-title {
+        font-weight: bolder;
+    }
+
+    .required {
+        color: red; /* 將 * 標記設置為紅色 */
+        font-weight: bold; /* 加粗以示強調 */
+    }
+
+    /* 表單標籤樣式 */
+    .form-label-custom {
+        width: 150px;
+        text-align: left;
+        font-weight: bold;
+        margin-right: 0px;
+        display: inline-block;
+        width: 30%;
+        margin-top:10px;
+        margin-bottom:10px;
+        
+    }
+
+    /* 表單輸入框及選擇框樣式 */
+    input[type="text"], select, .form-control {
+        background-color: #f8f9fa; /* 淡灰色背景 */
+        border: 1px solid #ccc; /* 灰色邊框 */
+        border-radius: 5px;
+        padding: 10px;
+        font-size: 16px;
+        width: 100%; /* 占滿寬度 */
+        transition: all 0.3s ease;
+    }
+
+        /* 當輸入框被選中時的樣式 */
+        input[type="text"]:focus, select:focus, .form-control:focus {
+            border-color: #499e73; /* 聚焦時變成深綠色邊框 */
+            outline: none;
+            box-shadow: 0 0 10px rgba(73, 158, 115, 0.5);
+        }
+
+    /* 按鈕樣式 */
+    button, .btn-secondary, .btn-add {
+        background-color: #74c69d; /* 淡綠色背景 */
+        color: white; /* 白色字體 */
+        border: none; /* 無邊框 */
+        padding: 10px 20px; /* 調整內邊距 */
+        border-radius: 5px; /* 圓角 */
+        font-size: 16px;
+        cursor: pointer; /* 鼠標移到按鈕上時變成手指 */
+        transition: all 0.3s ease; /* 添加過渡效果 */
+    }
+
+        /* 懸停時按鈕樣式 */
+        button:hover, .btn-secondary:hover, .btn-add:hover {
+            background-color: #499e73; /* 深綠色背景 */
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); /* 添加陰影 */
+            color: white;
+        }
+
+        /* 禁用狀態按鈕樣式 */
+        button:disabled, .btn-secondary:disabled, .btn-add:disabled {
+            background-color: #cdcdcd; /* 灰色背景 */
+            color: #999; /* 字體變灰 */
+            cursor: not-allowed;
+        }
+
+    /* 圖片上傳區域 */
+    #upload-img-btn {
+        background-color: #95d5b2; /* 淡綠色背景 */
+        color: white;
+        padding: 8px 16px;
+        border-radius: 5px;
+        transition: background-color 0.3s ease;
+    }
+
+        #upload-img-btn:hover {
+            background-color: #499e73; /* 深綠色在懸停時 */
+            cursor: pointer;
+        }
+
+    #file-name-container {
+        margin-top: 10px;
+    }
+
+    /* 刪除按鈕樣式 */
+    #delete-img-btn {
+        background-color: #dc3545; /* 紅色背景 */
+        color: white;
+        padding: 8px 16px;
+        border-radius: 5px;
+        transition: background-color 0.3s ease;
+    }
+
+        #delete-img-btn:hover {
+            background-color: #c82333; /* 深紅色背景 */
+            cursor: pointer;
+        }
+
+    /* 美化儲存按鈕 */
+    #saveProductBtn {
+        background-color: #74c69d;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 5px;
+        font-size: 16px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+        #saveProductBtn:hover {
+            background-color: #499e73;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+        }
+
+    /* 錯誤訊息的樣式 */
+    #errorMessage {
+        background-color: #f8d7da;
+        color: #721c24;
+        padding: 10px;
+        border: 1px solid #f5c6cb;
+        border-radius: 5px;
+    }
+
+    /* *************************************************表格樣式 ***********************************************************/
+    table.custom-table {
+        width: 100%; /* 表格寬度全屏 */
+        border-collapse: collapse; /* 去除單元格邊距 */
+        margin-top: 20px;
+    }
+
+        table.custom-table th,
+        table.custom-table td {
+            border: 1px solid #ddd; /* 輕微的灰色邊框 */
+            padding: 12px; /* 單元格內的填充 */
+            text-align: center; /* 內容居中 */
+            vertical-align: middle; /* 垂直居中 */
+        }
+
+        /* 表頭樣式 */
+        table.custom-table th {
+            background-color: #74C69D; /* 使用綠色作為背景色 */
+            color: white; /* 白色文字 */
+            font-weight: bold;
+            text-transform: uppercase; /* 表頭大寫 */
+        }
+
+        /* 表格行背景 */
+        table.custom-table tbody tr:nth-child(even) {
+            background-color: #f9f9f9; /* 偶數行使用淡灰色 */
+        }
+
+        /* 懸停效果 */
+        table.custom-table tbody tr:hover {
+            background-color: #eff4f2; /* 懸停時使用非常淺的綠色 */
+        }
+
+        /* 圖片樣式 */
+        table.custom-table img {
+            width: 50px;
+            height: auto;
+            border-radius: 5px; /* 圖片圓角 */
+        }
+    /* 表格懸停效果 */
+    tr:hover {
+        background-color: #DFF3EC; /* 使用非常淺的綠色 */
+    }
+
+    /* 懸停時表格行的背景顏色變化 */
+    tr:hover {
+        background-color: #f9f9f9;
+    }
+
+    /* 表格標題的樣式 */
+    th {
+        background-color: #5fae87;
+        color: white;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+
+    /* 針對小型螢幕的響應式設計 */
+    @@media (max-width: 768px) {
+        table {
+            font-size: 12px;
+        }
+
+        a.btn {
+            padding: 6px 10px;
+        }
+    }
+</style>
+@section Scripts{
+    <script>
+    //--------------------------------------------------------一開始顯示幾頁-----------------------------------------------------//
+     document.addEventListener("DOMContentLoaded", () => {
+         const maxRows = 5; // 每頁顯示的最大行數
+         let currentPage = 1; // 當前頁面
+
+         // 將 Razor 模型數據序列化為 JavaScript 對象
+         let originalData = @Html.Raw(Json.Encode(Model));
+         let filteredData = originalData;
+
+         const searchInput = document.getElementById("searchInput");
+         const searchButton = document.getElementById("searchButton");
+
+
+
+
+         //--------------------------------------------------------依名字搜尋-----------------------------------------------------//
+
+         searchButton.addEventListener("click", () => {
+             const searchTerm = searchInput.value.trim().toLowerCase();
+
+             if (searchTerm === "") {
+                 // 如果搜尋框為空，顯示所有資料
+                 filteredData = originalData;
+             } else {
+                 // 根據名稱篩選資料
+                 filteredData = originalData.filter(productCategory =>
+                     productCategory.Name.toLowerCase().includes(searchTerm)
+                 );
+             }
+
+             // 重置當前頁
+             currentPage = 1;
+
+             // 重新渲染表格和分頁
+             renderTable(currentPage);
+         });
+
+
+
+
+         //-------------------------------------------------動態產生商品分類所有資料(要包住分頁、修改、刪除)----------------------------------------//
+
+
+
+         let isEditing = false;
+
+         const storageSite = "https://localhost:44354/";
+         function renderTable(page) {
+             const totalPages = Math.ceil(filteredData.length / maxRows);
+             const tbody = document.getElementById("productCategoryTableBody");
+             tbody.innerHTML = ""; // 清空表格內容
+
+             const start = (page - 1) * maxRows;
+             let end = Math.min(start + maxRows, filteredData.length);
+
+             // 如果當前頁已經沒有數據，則自動跳轉到前一頁
+             if (start >= filteredData.length && page > 1) {
+                 currentPage--;
+                 renderTable(currentPage);
+                 return;
+             }
+
+
+
+             for (let i = start; i < end; i++) {
+                 const productCategory = filteredData[i];
+                 const row = document.createElement("tr");
+                 const imagePath = productCategory.Image ? `${storageSite}/uploads/Products/${productCategory.Image}` : "/path/to/default/image.jpg";
+                 console.log(imagePath);
+                 row.innerHTML = `
+                        <td><img src="${imagePath}" alt="${productCategory.Name}" style="width: 30px; height: auto;" /></td>
+                        <td>${productCategory.Name}</td>
+                        <td>${productCategory.DisplayOrder ? productCategory.DisplayOrder : "未排序"}</td>
+                        <td>
+                             <a class="custom-btn edit-btn" href="#!" role="button" data-id="${productCategory.Id}">
+                                 <i class="fa-solid fa-pen-to-square"></i> 修改
+                             </a>
+                             <a class="custom-btn delete-btn" href="#!" role="button" data-id="${productCategory.Id}">
+                                 <i class="fa-solid fa-trash"></i> 刪除
+                             </a>
+                        </td>
+                    `;
+
+                 tbody.appendChild(row);
+             }
+
+
+
+             //-------------------------------------------------渲染分頁按鈕-----------------------------------------//
+
+             renderPagination(totalPages);
+
+
+             //---------------------------------------------------修改商品分類------------------------------------------------------------//
+
+             document.querySelectorAll('.edit-btn').forEach(button => {
+
+                 button.addEventListener('click', function () {
+                     const categoryId = this.getAttribute('data-id');
+                     isEditing = true;
+                     // 使用 jQuery 的 AJAX 調用後端控制器的 Edit 動作來加載數據
+                     $.ajax({
+                         url: '@Url.Action("Edit", "ProductCategory")', // 控制器的 URL
+                         type: 'GET',
+                         data: { id: categoryId }, // 傳遞類別 ID
+                         success: function (response) {
+                             if (response.success) {
+                                 // 填充模態框中的表單數據
+                                 $("#Id").val(response.data.Id); // 設置隱藏的 Category ID 欄位
+                                 $("#Name").val(response.data.Name);
+                                 $("#DisplayOrder").val(response.data.DisplayOrder);
+                                 if (response.data.Image) {
+                                     $("#file-name-text").text(`已選擇圖片：${response.data.Image}`);
+                                     $("#file-name-container").show();
+                                 }
+
+                                 $("#errorMessage").text('').hide(); // 清空並隱藏錯誤訊息
+
+                                 // 修改模態框的標題
+                                 $("#staticBackdropLabel").text("修改商品類別");
+
+                                 // 顯示模態框
+                                 $('#addCategoryModal').modal('show');
+
+                                 // 修改表單的 action，設置為更新模式
+                                 $('#createCategoryForm').attr('action', '@Url.Action("Update", "ProductCategory")');
+                             } else {
+                                 // 使用 SweetAlert 顯示錯誤訊息
+                                 Swal.fire({
+                                     icon: 'error',
+                                     title: '加載數據時出錯',
+                                     text: response.message
+                                 });
+                             }
+                         },
+                         error: function () {
+                             // 使用 SweetAlert 顯示錯誤訊息
+                             Swal.fire({
+                                 icon: 'error',
+                                 title: '加載數據時出錯',
+                                 text: '請稍後再試或聯繫管理員'
+                             });
+                         }
+                     });
+                 });
+             });
+
+
+             //---------------------------------------------------刪除商品分類------------------------------------------------------------//
+
+             document.querySelectorAll('.delete-btn').forEach(button => {
+                 button.addEventListener('click', function () {
+                     const categoryId = this.getAttribute('data-id');
+
+                     // 使用 SweetAlert 來進行刪除確認
+                     Swal.fire({
+                         title: '您確定要刪除此商品類別嗎？',
+                         text: '刪除後將無法恢復此類別！',
+                         icon: 'warning',
+                         showCancelButton: true,
+                         confirmButtonColor: '#3085d6',
+                         cancelButtonColor: '#d33',
+                         confirmButtonText: '是的，刪除！',
+                         cancelButtonText: '取消'
+                     }).then((result) => {
+                         if (result.isConfirmed) {
+                             // 發送刪除請求
+                             $.ajax({
+                                 url: '@Url.Action("Delete", "ProductCategory")',
+                                 type: 'DELETE',
+                                 data: { id: categoryId },
+                                 success: function (response) {
+                                     if (response.success) {
+                                         // 使用 SweetAlert 顯示刪除成功訊息
+                                         Swal.fire({
+                                             icon: 'success',
+                                             title: '刪除成功',
+                                             text: response.message
+                                         });
+
+                                         // 更新 filteredData 並重新渲染表格
+                                         filteredData = filteredData.filter(item => item.Id != categoryId);
+                                         renderTable(currentPage);
+                                     } else {
+                                         // 使用 SweetAlert 顯示錯誤訊息
+                                         Swal.fire({
+                                             icon: 'error',
+                                             title: '刪除失敗',
+                                             text: response.message
+                                         });
+                                     }
+                                 },
+                                 error: function (xhr, status, error) {
+                                     // 使用 SweetAlert 顯示錯誤訊息
+                                     Swal.fire({
+                                         icon: 'error',
+                                         title: '刪除過程中發生錯誤',
+                                         text: error
+                                     });
+                                 }
+                             });
+                         }
+                     });
+                 });
+             });
+
+
+         }
+
+
+
+
+
+        //---------------------------------------------------新增商品分類modal------------------------------------------------------------//
+
+        document.getElementById("showModalBtn").addEventListener("click", function () {
+
+            isEditing = false; // 設置為新增模式
+            // 重置表單的 action 為新增模式
+            $('#createCategoryForm').attr('action', '@Url.Action("Create", "ProductCategory")');
+
+
+                   // 清空表單的輸入欄位
+            $("#Name").val('');
+            $("#DisplayOrder").val('');
+            $("#file-name-text").text('');
+            $("#file-name-container").hide(); // 隱藏圖片名稱提示
+
+            // 清除錯誤訊息
+            $("#errorMessage").text('').hide(); // 清空並隱藏錯誤訊息
+
+            // 修改模態框的標題為 "新增商品分類"
+            $("#staticBackdropLabel").text("新增商品分類");
+
+            // 顯示模態框
+            $('#addCategoryModal').modal('show');
+        });
+
+        //---------------------------------------------------新增商品分類的儲存按扭------------------------------------------------------------//
+
+        $(document).ready(function () {
+            $("#createCategoryForm").on("submit", function (e) {
+                e.preventDefault(); // 阻止表單默認提交
+
+                var formData = new FormData(this);
+                var url = $('#createCategoryForm').attr('action');
+
+
+                $.ajax({
+                    url: $('#createCategoryForm').attr('action'), // 使用當前表單的 action
+                    type: 'POST',
+                    data: formData,
+                    contentType: false, // 不設置默認的 content-type
+                    processData: false, // 不將數據轉換為 URL 編碼
+                    success: function (response) {
+                        console.log(response);
+
+
+                        if (response.success) {
+                            // 使用 SweetAlert 顯示成功提示
+
+                            Swal.fire({
+                                icon: 'success',
+                                title: '成功',
+                                text: response.message,
+                                timer: 1500, // 1.5 秒後自動關閉
+                                showConfirmButton: false
+                            }).then(() => {
+                                $("#addCategoryModal").modal('hide');
+                                if (isEditing) {
+                                    // 更新 filteredData 中相應的項目
+                                    const updatedCategory = {
+                                    Id: response.data.Id,
+                                    Name: response.data.Name,
+                                    DisplayOrder: response.data.DisplayOrder,
+                                    Image: response.data.Image
+                                    };
+
+                                    // 找到並更新相應的項目
+                                    const index = filteredData.findIndex(item => item.Id === updatedCategory.Id);
+                                    if (index !== -1) {
+                                        filteredData[index] = updatedCategory; // 更新項目
+                                    }
+
+                                    // 重新渲染表格，保持在當前頁面
+                                    renderTable(currentPage); // 使用當前頁碼重新渲染表格
+                                } else {
+                                    // 假設後端返回的數據包含新增加的項目
+                                    const newCategory = {
+                                        Id: response.data.Id,
+                                        Name: response.data.Name,
+                                        DisplayOrder: response.data.DisplayOrder,
+                                        Image: response.data.Image
+                                    };
+
+                                    // 將新的類別加入到 filteredData
+                                    filteredData.push(newCategory);
+
+                                    // 計算新類別的頁碼
+                                    const totalItems = filteredData.length; // 總數據量
+                                    const itemsPerPage = 5; // 每頁顯示的項目數
+                                    const newPage = Math.ceil(totalItems / itemsPerPage); // 計算新頁碼
+
+                                    // 重新渲染表格
+                                    renderTable(newPage); // 使用計算出的新頁碼重新渲染表格
+                                }
+                            });
+                        } else {
+                            // 使用 SweetAlert 顯示錯誤提示
+                            Swal.fire({
+                                icon: 'error',
+                                title: response.message,
+                                text: '請另取新名字'
+                            });
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        // 使用 SweetAlert 顯示 AJAX 錯誤
+                        Swal.fire({
+                            icon: 'error',
+                            title: '發生錯誤',
+                            text: error
+                        });
+                    }
+                });
+            });
+        });
+
+         //---------------------------------------------------分頁功能------------------------------------------------------------//
+
+
+
+             function renderPagination(totalPages) {
+                 const pagination = document.getElementById("pagination");
+                 pagination.innerHTML = ""; // 清空舊的分頁按鈕
+
+                 const maxVisiblePages = 5; // 固定顯示5個頁碼
+                 let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+                 let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+                 // 調整當頁碼接近起始或結束範圍時的顯示
+                 if (endPage - startPage < maxVisiblePages - 1) {
+                     startPage = Math.max(1, endPage - maxVisiblePages + 1);
+                 }
+
+                 // 前一頁按鈕
+                 const prevPage = document.createElement("li");
+                 prevPage.classList.add("page-item");
+                 prevPage.innerHTML = `
+          <a class="page-link" href="#" aria-label="Previous">
+              <span aria-hidden="true">&laquo;</span>
+          </a>`;
+                 prevPage.addEventListener("click", () => {
+                     if (currentPage > 1) {
+                         currentPage--;
+                         renderTable(currentPage);
+                     }
+                 });
+                 pagination.appendChild(prevPage);
+
+                 // 動態生成頁碼
+                 for (let i = startPage; i <= endPage; i++) {
+                     const pageItem = document.createElement("li");
+                     pageItem.classList.add("page-item");
+                     if (i === currentPage) {
+                         pageItem.classList.add("active");
+                     }
+                     pageItem.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+                     pageItem.addEventListener("click", () => {
+                         currentPage = i;
+                         renderTable(currentPage);
+                     });
+                     pagination.appendChild(pageItem);
+                 }
+
+                 // 下一頁按鈕
+                 const nextPage = document.createElement("li");
+                 nextPage.classList.add("page-item");
+                 nextPage.innerHTML = `
+          <a class="page-link" href="#" aria-label="Next">
+              <span aria-hidden="true">&raquo;</span>
+          </a>`;
+                 nextPage.addEventListener("click", () => {
+                     if (currentPage < totalPages) {
+                         currentPage++;
+                         renderTable(currentPage);
+                     }
+                 });
+                 pagination.appendChild(nextPage);
+             }
+
+             // 初始化顯示首頁
+             renderTable(currentPage);
+
+     });
+
+
+
+
+
+         //---------------------------------------------------上傳照片功能------------------------------------------------------------//
+
+
+        document.getElementById("upload-img-btn").addEventListener("click", function () {
+            document.getElementById("upload-img").click(); // 觸發隱藏的 file input
+        });
+
+
+         //---------------------------------------------------顯示照片名稱------------------------------------------------------------//
+
+        document.getElementById("upload-img").addEventListener("change", function (event) {
+            const file = event.target.files[0];
+            if (file) {
+                const fileNameContainer = document.getElementById("file-name-container");
+                const fileNameText = document.getElementById("file-name-text");
+
+                fileNameText.textContent = `已選擇圖片：${file.name}`; // 顯示選擇的文件名稱
+                fileNameContainer.style.display = "block"; // 顯示提示區域
+            }
+        });
+
+         //---------------------------------------------------刪除照片------------------------------------------------------------//
+            document.getElementById("delete-img-btn").addEventListener("click", function () {
+                // 設置隱藏字段為 true，表示用戶選擇刪除圖片
+                document.getElementById("deleteImageField").value = "true";
+
+                // 清空文件選擇器的值
+                document.getElementById("upload-img").value = '';
+
+                // 隱藏圖片名稱提示
+                document.getElementById("file-name-container").style.display = 'none';
+
+                // 使用 SweetAlert 提示圖片已刪除
+                Swal.fire({
+                    icon: 'success',
+                    title: '圖片已刪除',
+                    text: '您可以重新上傳或保持無圖片。',
+                    timer: 1500, // 1.5 秒後自動關閉
+                    showConfirmButton: false
+                });
+            });
+
+
+         // -----------------------------------------當 modal 隱藏時清空文件選擇器和提示----------------------------------------------//
+
+        $('#addCategoryModal').on('hidden.bs.modal', function () {
+            document.getElementById("upload-img").value = ''; // 重置文件選擇器
+            document.getElementById("file-name-container").style.display = 'none'; // 隱藏提示
+        });
+
+
+    </script>
+
+
+
+
+}

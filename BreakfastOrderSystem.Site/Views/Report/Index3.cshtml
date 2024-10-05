@@ -1,0 +1,391 @@
+﻿@model BreakfastOrderSystem.Site.Models.ViewModels.ProductSalesVm
+
+@{
+    ViewBag.Title = "商品銷售統計";
+}
+
+<h2 class="fw-bold mt-2 ">商品銷售統計</h2>
+<div class="container">
+    <div class="header d-flex justify-content-start align-items-center">
+        <!-- 開始日期 -->
+        <div class="d-flex align-items-center me-2" style="gap: 5px;">
+            <!-- 調整 gap 為 5px，縮小間距 -->
+            <label for="startDate" class="mb-0">開始日期:</label>
+            <input type="date" id="startDate" class="form-control" aria-label="Start Date" style="width: 150px;">
+        </div>
+
+        <!-- 結束日期 -->
+        <div class="d-flex align-items-center me-2" style="gap: 5px;">
+            <!-- 調整 gap 為 5px，縮小間距 -->
+            <label for="endDate" class="mb-0">結束日期:</label>
+            <input type="date" id="endDate" class="form-control" aria-label="End Date" style="width: 150px;">
+        </div>
+
+        <button class="btn btn-primary" type="button" id="searchButton" style="white-space: nowrap;">搜尋</button>
+    </div>
+
+    <!-- 商品銷售表格 -->
+    <table class="custom-table" style="white-space: nowrap;">
+        <thead>
+            <tr>
+                <th>商品</th>
+                <th>數量</th>
+            </tr>
+        </thead>
+        <tbody id="productTableBody">
+            <!-- 商品動態生成 -->
+        </tbody>
+    </table>
+
+    <!-- 分頁控制 -->
+    <nav aria-label="Page navigation">
+        <ul class="pagination" id="pagination" >
+            <!-- 分頁動態生成 -->
+        </ul>
+    </nav>
+</div>
+<style>
+    /* **************************************分頁項的基本樣式 *************************************************************/
+    .page-item {
+        display: inline-block;
+        margin: 0 5px; /* 每個分頁按鈕之間的間距 */
+    }
+
+    /* 分頁鏈接的基本樣式 */
+    .page-link {
+        display: block;
+        /*padding: 8px 12px;*/ /* 調整內邊距，讓按鈕更大一些 */
+        background-color: #DFF3EC; /* 淡綠色背景 */
+        color: #333; /* 文字顏色 */
+        border-radius: 5px; /* 圓角 */
+        text-decoration: none; /* 去除默認的下劃線 */
+        font-weight: bold;
+        transition: background-color 0.3s ease, color 0.3s ease; /* 添加過渡效果 */
+    }
+
+    /* 當前頁面的樣式 */
+    .page-item.active .page-link {
+        background-color: #499e73; /* 深綠色背景 */
+        color: white; /* 白色文字 */
+        cursor: default; /* 當前頁面不允許點擊 */
+        border: none !important;
+    }
+
+    /* 分頁鏈接的懸停樣式 */
+    .page-link:hover {
+        background-color: #74c69d; /* 懸停時的顏色 */
+        color: white;
+    }
+
+    /* 禁用上一頁/下一頁時的樣式 */
+    .page-item.disabled .page-link {
+        background-color: #f0f0f0; /* 灰色背景 */
+        color: #ccc; /* 灰色文字 */
+        cursor: not-allowed; /* 禁用的鼠標樣式 */
+    }
+
+    .pagination {
+        position: fixed;
+        bottom: 60px; /* 距離底部 20px */
+        left: 55%; /* 使其相對於頁面水平居中 */
+        transform: translateX(-50%); /* 偏移自身寬度的一半，達到真正居中效果 */
+        z-index: 1000; /* 確保分頁按鈕位於其他元素之上 */
+        /*background-color: #f8f9fa;*/ /* 背景顏色 */
+        padding: 10px 20px;
+        border-radius: 5px; /* 圓角 */
+        /*box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);*/ /* 添加陰影效果 */
+    }
+    /*******************************************按扭樣式*****************************************************************/
+    #showModalBtn {
+        margin-top: 10px;
+        margin-left: -10px; /* 向左移動 20px，值可以根據需求調整 */
+        background-color: #b7e4c7 !important; /* 淡綠色背景 */
+        color: white; /* 文字顏色 */
+        font-weight: bolder;
+        padding: 10px 20px; /* 調整內邊距 */
+        border: none; /* 去除邊框 */
+        border-radius: 5px; /* 圓角 */
+        font-size: 16px; /* 調整字體大小 */
+        cursor: pointer; /* 鼠標變成手指 */
+        transition: all 0.3s ease; /* 過渡效果 */
+        /* 立體效果的陰影 */
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.1); /* 陰影效果 */
+    }
+
+        #showModalBtn:hover {
+            color: white;
+            background-color: #499e73 !important; /* 深綠色背景 */
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1); /* 改變陰影讓按鈕看起來被按下去 */
+            transform: translateY(2px); /* 輕微向下移動，讓它看起來像是被按下去 */
+        }
+
+        #showModalBtn:active {
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.1); /* 更小的陰影效果，模擬按下 */
+            transform: translateY(4px); /* 按下時進一步移動 */
+        }
+
+    /* 通用按鈕樣式 */
+    .custom-btn {
+        display: inline-block;
+        padding: 8px 15px;
+        border-radius: 5px;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: bold;
+        color: white;
+        margin-right: 10px;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+        /*display: inline-flex;*/ /* 讓圖標和文字水平對齊 */
+        align-items: center; /* 讓文字居中對齊 */
+        justify-content: center; /* 讓文字在按鈕中間水平居中 */
+    }
+
+
+        /* 懸停效果 */
+        .custom-btn:hover {
+            background-color: #499e73; /* 懸停時使用更深的綠色 */
+            transform: translateY(-2px); /* 懸停時按鈕輕微上移 */
+        }
+
+    /* 修改按鈕的樣式 */
+    .edit-btn {
+        background-color: #DFF3EC; /* 使用綠色作為背景色 */
+        color: rgb(95, 154, 132); /* 文字顏色為白色 */
+        border: 1px solid #74C69D; /* 使用深綠色作為邊框 */
+    }
+
+        .edit-btn:hover {
+            background-color: #74C69D; /* 懸停時變成更深的綠色 */
+            color: white;
+            transform: translateY(-2px); /* 懸停時按鈕輕微上移 */
+        }
+
+    /* 刪除按鈕的樣式 */
+    .delete-btn {
+        background-color: #FFE6E6; /* 淡紅色背景 */
+        color: rgb(201, 101, 101);
+        border: 1px solid rgb(201, 101, 101);
+    }
+
+        .delete-btn:hover {
+            background-color: rgb(201, 101, 101);
+            color: white;
+            transform: translateY(-2px); /* 懸停時按鈕輕微上移 */
+        }
+
+    #searchButton {
+        background-color: #f1f1f1; /* 使用綠色作為背景色 */
+        color: dimgrey; /* 文字顏色為白色 */
+        border: #74C69D; /* 使用深綠色作為邊框 */
+    }
+
+    /* 按鈕圖標樣式 */
+    .custom-btn i {
+        margin-right: 5px; /* 圖標與文字之間的間距 */
+    }
+
+    /* 專門針對自定義的刪除按鈕 */
+    .custom-remove-btn {
+        border: none; /* 去掉邊框 */
+        background: none; /* 無背景 */
+        color: red; /* 紅色字體 */
+        cursor: pointer; /* 鼠標移上時顯示為手型 */
+        font-size: 16px; /* 調整大小 */
+        padding: 0; /* 去掉內邊距 */
+        margin-left: 5px; /* 與文字的間距 */
+    }
+
+        .custom-remove-btn:hover {
+            color: darkred; /* 懸停時顯示深紅色 */
+        }
+
+        /* 圖標樣式也可以單獨定義 */
+        .custom-remove-btn i {
+            pointer-events: none; /* 禁用對圖標的點擊 */
+        }
+
+    .addon-items {
+        background-color: #95d5b2;
+        color: white;
+        padding: 5px;
+        border-radius: 5px;
+        margin-left: 3px;
+    }
+    /* *************************************************表格樣式 ***********************************************************/
+    table.custom-table {
+        width: 100%; /* 表格寬度全屏 */
+        border-collapse: collapse; /* 去除單元格邊距 */
+        margin-top: 20px;
+    }
+
+        table.custom-table th,
+        table.custom-table td {
+            border: 1px solid #ddd; /* 輕微的灰色邊框 */
+            padding: 12px; /* 單元格內的填充 */
+            text-align: center; /* 內容居中 */
+            vertical-align: middle; /* 垂直居中 */
+        }
+
+        /* 表頭樣式 */
+        table.custom-table th {
+            background-color: #74C69D; /* 使用綠色作為背景色 */
+            color: white; /* 白色文字 */
+            font-weight: bold;
+            text-transform: uppercase; /* 表頭大寫 */
+        }
+
+        /* 表格行背景 */
+        table.custom-table tbody tr:nth-child(even) {
+            background-color: #f9f9f9; /* 偶數行使用淡灰色 */
+        }
+
+        /* 懸停效果 */
+        table.custom-table tbody tr:hover {
+            background-color: #eff4f2; /* 懸停時使用非常淺的綠色 */
+        }
+
+        /* 圖片樣式 */
+        table.custom-table img {
+            width: 50px;
+            height: auto;
+            border-radius: 5px; /* 圖片圓角 */
+        }
+    /* 表格懸停效果 */
+    tr:hover {
+        background-color: #DFF3EC; /* 使用非常淺的綠色 */
+    }
+
+    /* 懸停時表格行的背景顏色變化 */
+    tr:hover {
+        background-color: #f9f9f9;
+    }
+
+    /* 表格標題的樣式 */
+    th {
+        background-color: #5fae87;
+        color: white;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+
+    /* 針對小型螢幕的響應式設計 */
+    @@media (max-width: 768px) {
+        table {
+            font-size: 12px;
+        }
+
+        a.btn {
+            padding: 6px 10px;
+        }
+    }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+@section Scripts {
+
+    
+    <script>
+
+
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // 頁面加載時立即抓取數據
+            fetchReportData();
+
+            // 綁定搜尋按鈕的點擊事件
+            document.getElementById('searchButton').addEventListener('click', function () {
+                fetchReportData();
+            });
+        });
+
+            function fetchReportData(page = 1) {
+                // 取得開始日期和結束日期的值
+                var startDate = document.getElementById('startDate').value;
+                var endDate = document.getElementById('endDate').value;
+
+                // 構建查詢參數
+                var query = `?startDate=${startDate}&endDate=${endDate}&page=${page}`;
+
+                // 發送 AJAX 請求到後端
+                fetch('@Url.Action("GetReportData3", "Report")' + query)
+                    .then(response => response.json())
+                    .then(data => {
+                        updateProductTable(data.Products);
+                        updatePagination(data.Pagination);
+                    })
+                    .catch(error => console.error('Error fetching report data:', error));
+            }
+            
+
+        function updateProductTable(products) {
+            var tableBody = document.getElementById('productTableBody');
+            tableBody.innerHTML = '';  // 清空表格
+
+            products.forEach(product => {
+                var row = document.createElement('tr');
+                row.innerHTML = `<td>${product.ProductName}</td><td>${product.Quantity}</td>`;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function updatePagination(pagination) {
+            var paginationUl = document.getElementById('pagination');
+            paginationUl.innerHTML = ''; // 清空分頁
+
+            var currentPage = pagination.CurrentPage;
+            var totalPages = pagination.TotalPages;
+
+            // 生成前一頁按鈕
+            var prevPage = document.createElement('li');
+            prevPage.classList.add('page-item');
+            prevPage.innerHTML = `
+        <a class="page-link" href="#" aria-label="Previous">
+            <span aria-hidden="true">&laquo;</span>
+        </a>`;
+            prevPage.addEventListener('click', function () {
+                if (currentPage > 1) {
+                    fetchReportData(currentPage - 1);
+                }
+            });
+            paginationUl.appendChild(prevPage);
+
+            // 生成分頁按鈕，最多顯示 5 頁
+            var startPage = Math.max(1, currentPage - 2);
+            var endPage = Math.min(totalPages, currentPage + 2);
+
+            for (var i = startPage; i <= endPage; i++) {
+                var pageItem = document.createElement('li');
+                pageItem.classList.add('page-item');
+                if (i === currentPage) {
+                    pageItem.classList.add('active');
+                }
+                pageItem.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+                pageItem.addEventListener('click', (function (pageNum) {
+                    return function () {
+                        fetchReportData(pageNum);
+                    };
+                })(i));
+                paginationUl.appendChild(pageItem);
+            }
+
+            // 生成下一頁按鈕
+            var nextPage = document.createElement('li');
+            nextPage.classList.add('page-item');
+            nextPage.innerHTML = `
+        <a class="page-link" href="#" aria-label="Next">
+            <span aria-hidden="true">&raquo;</span>
+        </a>`;
+            nextPage.addEventListener('click', function () {
+                if (currentPage < totalPages) {
+                    fetchReportData(currentPage + 1);
+                }
+            });
+            paginationUl.appendChild(nextPage);
+        }
+
+
+    </script>
+}
+

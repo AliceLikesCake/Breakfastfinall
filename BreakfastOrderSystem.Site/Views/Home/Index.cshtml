@@ -1,0 +1,336 @@
+﻿@model List<BreakfastOrderSystem.Site.Models.ViewModels.OrderDetailVm>
+
+@{
+    ViewBag.Title = "待處理訂單";
+}
+
+<style>
+    /* *************************************************表格樣式 ***********************************************************/
+    table.custom-table {
+        width: 100%; /* 表格寬度全屏 */
+        border-collapse: collapse; /* 去除單元格邊距 */
+        margin-top: 5px;
+    }
+
+        table.custom-table th,
+        table.custom-table td {
+            border: 1px solid #ddd; /* 輕微的灰色邊框 */
+            padding: 12px; /* 單元格內的填充 */
+            text-align: center; /* 內容居中 */
+            vertical-align: middle; /* 垂直居中 */
+        }
+
+        /* 表頭樣式 */
+        table.custom-table th {
+            background-color: #74C69D; /* 使用綠色作為背景色 */
+            color: white; /* 白色文字 */
+            font-weight: bold;
+            text-transform: uppercase; /* 表頭大寫 */
+        }
+
+        /* 表格行背景 */
+        table.custom-table tbody tr:nth-child(even) {
+            background-color: #f9f9f9; /* 偶數行使用淡灰色 */
+        }
+
+        /* 懸停效果 */
+        table.custom-table tbody tr:hover {
+            background-color: #eff4f2; /* 懸停時使用非常淺的綠色 */
+        }
+
+        /* 圖片樣式 */
+        table.custom-table img {
+            width: 50px;
+            height: auto;
+            border-radius: 5px; /* 圖片圓角 */
+        }
+    /* 表格懸停效果 */
+    tr:hover {
+        background-color: #DFF3EC; /* 使用非常淺的綠色 */
+    }
+
+    /* 懸停時表格行的背景顏色變化 */
+    tr:hover {
+        background-color: #f9f9f9;
+    }
+
+    /* 表格標題的樣式 */
+    th {
+        background-color: #5fae87;
+        color: white;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+
+    /* 針對小型螢幕的響應式設計 */
+    @@media (max-width: 768px) {
+        table {
+            font-size: 12px;
+        }
+
+        a.btn {
+            padding: 6px 10px;
+        }
+    }
+
+
+
+    /* 取餐編號和會員名稱樣式 */
+    .order-id, .member-name {
+        font-weight: bold; /* 加粗文字 */
+        color: #333; /* 深灰色字體 */
+        font-size: 18px; /* 文字大小 */
+    }
+
+    .total-price {
+        font-weight: bold;
+        color: red; /* 總金額顯示紅色 */
+        font-size: 18px;
+    }
+
+    /* 按鈕樣式 */
+    .btn-confirm {
+        background-color: #74c69d; /* 淡綠色背景 */
+        color: white; /* 白色字體 */
+        border: none;
+        padding: 8px 16px;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+        .btn-confirm:hover {
+            background-color: #499e73; /* 懸停時變為深綠色 */
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); /* 添加陰影 */
+            color:white;
+        }
+
+    .btn-abandon {
+        background-color: #e63946; /* 紅色背景 */
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+        .btn-abandon:hover {
+            background-color: #d32f2f; /* 懸停時變為深紅色 */
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); /* 添加陰影 */
+            color: white;
+        }
+
+    /* 讓整行按鈕和文字看起來對齊 */
+    .row.align-items-center .col {
+        display: flex;
+        align-items: center;
+    }
+
+    .col.order-actions {
+        display: flex;
+        justify-content: flex-end; /* 按鈕對齊到右邊 */
+    }
+
+        .col.order-actions button {
+            margin-left: 10px; /* 按鈕之間的間距 */
+        }
+</style>
+
+<h2 style="font-weight:bolder">待處理訂單</h2>
+
+<!-- 隱藏的模板，用於克隆並動態填充訂單 -->
+@foreach (var order in Model)
+{
+    <div class="order-template mb-3" id="order-@order.OrderId">
+        <div class="row  align-items-center">
+            <div class="col pickup-id">
+                取餐編號：<span class="order-id">@order.OrderId</span>
+            </div>
+            <div class="col member-id">
+                會員名稱：<span class="member-name">@order.MemberName</span>
+            </div>
+            <div class="col total-amount">
+                總金額：<span class="total-price">@order.TotalPrice</span>
+            </div>
+            <div class="col order-actions">
+                <!-- 確認按鈕，點擊後更新狀態為已取餐 (2) -->
+                <button class="btn btn-confirm" type="button" onclick="confirmStatusChange(@order.OrderId, 2)">確認</button>
+                <!-- 棄單按鈕，點擊後更新狀態為已棄單 (4) -->
+                <button class="btn btn-abandon" type="button" onclick="confirmStatusChange(@order.OrderId, 4)">棄單</button>
+            </div>
+        </div>
+        <!-- 商品列表表格 -->
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th scope="col">商品名稱</th>
+                    <th scope="col">加選資訊</th>
+                    <th scope="col">商品數量</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in order.Items)
+                {
+                    <tr>
+                        <td>@item.ProductName</td>
+                        <td>@string.Join(", ", item.AddOnInfo.Select(a => a.AddOnName))</td>
+                        <td>@item.Quantity</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+
+
+
+@section scripts {
+    <script>
+        // 將 Razor 模型數據序列化為 JavaScript 對象
+        var orders = @Html.Raw(Json.Encode(Model));
+
+        function loadPendingOrders() {
+            const mainContent = document.querySelector(".main-content");
+            mainContent.style.overflowY = "auto"; // 顯示滾動條
+
+            // 找到隱藏的訂單模板
+            const template = document.getElementById("order-template");
+
+            // 遍歷每個訂單，這裡使用的是從 Razor 傳遞過來的模型數據
+            orders.forEach((order) => {
+                // 克隆訂單模板
+                const orderClone = template.cloneNode(true);
+                orderClone.style.display = "block"; // 顯示克隆的模板
+
+                // 填充訂單基本資訊
+                orderClone.querySelector(".pickup-id span").textContent = order.OrderId || 'N/A';
+                orderClone.querySelector(".member-id span").textContent = order.MemberName || 'N/A';
+                orderClone.querySelector(".total-amount span").textContent = order.TotalPrice || '0';
+
+                // 填充商品項目
+                const orderItemsContainer = orderClone.querySelector(".order-items");
+
+                // 檢查是否有商品資料
+                if (order.Items && order.Items.length > 0) {
+                    order.Items.forEach((item) => {
+                        const row = document.createElement("tr");
+
+                        const itemName = document.createElement("td");
+                        itemName.classList.add('product-name'); // 使用樣式
+                        itemName.textContent = item.ProductName || 'N/A';
+
+                        const addInfo = document.createElement("td");
+                        addInfo.classList.add('add-info'); // 使用樣式
+                        // 檢查是否有加選資訊
+                        if (item.AddOnInfo && item.AddOnInfo.length > 0) {
+                            addInfo.textContent = item.AddOnInfo.map(addOn => addOn.AddOnName).join(", ");
+                        } else {
+                            addInfo.textContent = "無";
+                        }
+
+                        const quantity = document.createElement("td");
+                        quantity.classList.add('quantity'); // 使用樣式
+                        quantity.textContent = item.Quantity || 0;
+
+                        row.appendChild(itemName);
+                        row.appendChild(addInfo);
+                        row.appendChild(quantity);
+                        orderItemsContainer.appendChild(row);
+                    });
+                } else {
+                    // 若沒有商品資料，顯示提示
+                    const emptyRow = document.createElement("tr");
+                    const emptyMessage = document.createElement("td");
+                    emptyMessage.setAttribute('colspan', '3');
+                    emptyMessage.textContent = "無商品資料";
+                    emptyRow.appendChild(emptyMessage);
+                    orderItemsContainer.appendChild(emptyRow);
+                }
+
+                // 將訂單克隆添加到主內容
+                mainContent.appendChild(orderClone);
+            });
+        }
+
+        function confirmStatusChange(orderId, status) {
+            var actionText = status === 2 ? "確認已取餐" : "確認棄單";
+
+            // 發送 AJAX 請求更新訂單狀態
+            $.ajax({
+                url: '@Url.Action("UpdateOrderStatus", "Home")', // 呼叫控制器中的 UpdateOrderStatus Action
+                type: 'POST',
+                data: {
+                    orderId: orderId,
+                    orderStatus: status
+                },
+                success: function (response) {
+                    if (response.success) {
+                        Swal.fire({
+                            title: '成功！',
+                            text: actionText + ' 成功！',
+                            icon: 'success',
+                            timer: 2000, // 2秒後自動關閉
+                            showConfirmButton: false
+                        });
+                        // 移除當前訂單，因為狀態已改變
+                        $('#order-' + orderId).remove();
+                    } else {
+                        Swal.fire({
+                            title: '錯誤',
+                            text: actionText + ' 失敗，請重試！',
+                            icon: 'error',
+                            timer: 2000, // 2秒後自動關閉
+                            showConfirmButton: false
+                        });
+                    }
+                },
+                error: function () {
+                    Swal.fire({
+                        title: '錯誤',
+                        text: '訂單狀態更新失敗，請檢查網絡連接！',
+                        icon: 'error',
+                        timer: 2000, // 2秒後自動關閉
+                        showConfirmButton: false
+                    });
+                }
+            });
+        }
+
+
+        // 當 DOM 加載完畢時執行
+        document.addEventListener("DOMContentLoaded", loadPendingOrders);
+
+        @*function confirmStatusChange(orderId, status) {
+            var actionText = status === 2 ? "確認已取餐" : "確認棄單";
+
+            if (confirm("您確定要" + actionText + "嗎？")) {
+                // 發送 AJAX 請求更新訂單狀態
+                $.ajax({
+                    url: '@Url.Action("UpdateOrderStatus", "Home")', // 呼叫控制器中的 UpdateOrderStatus Action
+                    type: 'POST',
+                    data: {
+                        orderId: orderId,
+                        orderStatus: status
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            alert('訂單狀態更新成功！');
+                            // 移除當前訂單，因為狀態已改變
+                            $('#order-' + orderId).remove();
+                        } else {
+                            alert('訂單狀態更新失敗，請重試！');
+                        }
+                    },
+                    error: function () {
+                        alert('訂單狀態更新失敗，請檢查網絡連接！');
+                    }
+                });
+            }
+        }*@
+
+    </script>
+}

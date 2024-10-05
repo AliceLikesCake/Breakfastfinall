@@ -1,0 +1,235 @@
+﻿html, body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Microsoft JhengHei UI';
+    background-color: #d3e4d6; /* 灰色背景 */
+    height: 100%;
+    overflow: hidden; /* 隱藏整個視窗的捲軸 */
+}
+
+.container-fluid {
+    padding: 0;
+}
+
+.top-bar {
+    background-color: #d3e4d6; /* 灰色背景 */
+    padding: 10px 20px;
+    color: black; /* 確保文字在灰色背景上可見 */
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    position: fixed; /* 固定在頁面頂部 */
+    width: calc(100% - 70px); /* 初始時與縮回的側邊欄對齊 */
+    top: 0;
+    left: 70px;
+    z-index: 1;
+    transition: all 0.3s ease;
+}
+
+    .top-bar.expanded {
+        width: calc(100% - 250px); /* 展開後的寬度 */
+        left: 250px;
+    }
+
+.sidebar {
+    width: 70px; /* 初始狀態的寬度 */
+    background-color: #3dac78; /* 綠色背景 */
+    color: white;
+    height: 100vh; /* 貫穿整個頁面高度 */
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 2;
+    padding-top: 20px;
+    transition: all 0.3s ease; /* 添加平滑過渡效果 */
+    overflow-x: hidden;
+}
+
+    .sidebar.expanded {
+        width: 250px; /* 展開後的寬度 */
+    }
+
+    .sidebar .nav-item {
+        border-bottom: 1px solid #3dac78;
+        text-align: center;
+    }
+
+    .sidebar .nav-link {
+        color: white;
+        padding: 15px 10px;
+        text-align: left;
+        display: block;
+        width: 100%;
+        cursor: pointer;
+        text-decoration: none;
+    }
+
+.nav-link.active, .nav-link:hover {
+    background-color: #498061; /* 活躍或懸停時的背景顏色 */
+    color: white;
+}
+
+.sidebar .submenu-wrapper {
+    position: relative;
+    width: calc(100% - 20px); /* 確保容器比 sidebar 短一些，給出邊距 */
+    margin: 0 10px; /* 確保外邊距與 sidebar 的顏色一致 */
+    display: none;
+}
+
+    .sidebar .submenu-wrapper.expanded {
+        display: block;
+    }
+
+.sidebar .submenu {
+    background-color: #d8f3dc;
+    border-radius: 5px;
+    padding: 10px;
+    width: 100%;
+    display: none;
+}
+
+.sidebar.expanded .submenu-wrapper {
+    display: block;
+}
+
+.sidebar .submenu .nav-link {
+    color: rgb(46, 105, 57);
+    background-color: #aee4b6;
+    padding: 10px 15px;
+    border-radius: 5px;
+    display: block;
+    margin-bottom: 5px;
+    text-align: center;
+    transition: background-color 0.3s;
+    text-decoration: none;
+}
+
+    .sidebar .submenu .nav-link:hover, .sidebar .submenu .nav-link.active {
+        background-color: #80cf90;
+    }
+
+.main-content-wrapper {
+    margin-left: 70px; /* 初始時的側邊欄寬度 */
+    background-color: #d3e4d6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+    transition: all 0.3s ease;
+}
+
+    .main-content-wrapper.expanded {
+        margin-left: 250px; /* 展開時的側邊欄寬度 */
+    }
+
+.main-content {
+    background-color: #ffffff;
+    border-radius: 6px;
+    width: 80vw;
+    height: 80vh;
+    min-width: 300px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    overflow-y: hidden;
+    box-sizing: border-box;
+    padding: 20px;
+    margin-top: 0px;
+}
+
+    .main-content table th {
+        background-color: #5fae87 !important;
+        color: white !important;
+        border: 1px solid white !important;
+        text-align: center;
+    }
+
+    .main-content table td {
+        border: 1px solid #ccc !important;
+        text-align: center;
+    }
+
+    .main-content table tr:hover {
+        background-color: #f1f1f1 !important;
+    }
+
+#showModalBtn {
+    background-color: #5fae87;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+    #showModalBtn:hover {
+        background-color: #499e73;
+    }
+
+/* 縮回時只顯示圖標，隱藏文字 */
+.sidebar .nav-link i {
+    font-size: 24px;
+    margin-right: 0;
+    display: block;
+}
+
+.sidebar .nav-link span {
+    display: none; /* 初始狀態隱藏文字 */
+}
+
+.sidebar.expanded .nav-link i {
+    margin-right: 10px;
+    display: inline-block;
+}
+
+.sidebar.expanded .nav-link span {
+    display: inline; /* 展開時顯示文字 */
+}
+
+/* 側邊欄的標題和圖片 */
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    transition: all 0.3s ease;
+}
+
+/* 調整圖片大小 */
+.sidebar .sidebar-header img {
+    width: 30px;
+    height: 30px;
+    transition: all 0.3s ease;
+    margin-right: 10px; /* 圖片與文字之間的距離 */
+}
+
+/* 調整文字樣式 */
+.sidebar .sidebar-header h5 {
+    font-size: 20px;
+    color: white;
+    font-weight: bolder;
+    margin: 0;
+    transition: all 0.3s ease;
+}
+
+/* 側邊欄展開時顯示圖片和文字 */
+.sidebar.expanded .sidebar-header img {
+    width: 30px;
+    height: 30px;
+}
+
+.sidebar.expanded .sidebar-header h5 {
+    display: block;
+}
+
+/* 側邊欄縮合時只顯示圖片，隱藏文字 */
+.sidebar:not(.expanded) .sidebar-header img {
+    width: 30px;
+    height: 30px;
+}
+
+.sidebar:not(.expanded) .sidebar-header h5 {
+    display: none;
+}

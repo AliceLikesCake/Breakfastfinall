@@ -1,0 +1,211 @@
+﻿@{
+    ViewBag.Title = "營業趨勢圖";
+}
+
+<h2 class="fw-bold mt-2 ">營業趨勢圖</h2>
+<div class="container">
+    <div class="header d-flex justify-content-start align-items-center" style="gap: 10px;">
+        <!-- 调整 gap 值 -->
+        <!-- 開始月份 -->
+        <div class="d-flex align-items-center" style="gap: 5px;">
+            <!-- 缩小 gap 值 -->
+            <label for="startMonth" class="mb-0">開始月份:</label>
+            <input type="month" id="startMonth" class="form-control" aria-label="Start Month" style="width: 150px;">
+        </div>
+
+        <!-- 結束月份 -->
+        <div class="d-flex align-items-center" style="gap: 5px;">
+            <!-- 缩小 gap 值 -->
+            <label for="endMonth" class="mb-0">結束月份:</label>
+            <input type="month" id="endMonth" class="form-control" aria-label="End Month" style="width: 150px;">
+        </div>
+
+        <button class="btn btn-primary" type="button" id="searchButton">搜尋</button>
+    </div>
+
+    <div class="charts d-flex justify-content-between mt-4">
+        <!-- 營業額的長條圖 -->
+        <div style="width: 45%;">
+            <canvas id="salesChart"></canvas>
+        </div>
+
+        <!-- 會員數的折線圖 -->
+        <div style="width: 45%;">
+            <canvas id="membersChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<style>
+
+    /*****************************************按扭樣式******************************************/
+    /* 通用按鈕樣式 */
+    .custom-btn {
+        display: inline-block;
+        padding: 8px 15px;
+        border-radius: 5px;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: bold;
+        color: white;
+        margin-right: 10px;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+        /*display: inline-flex;*/ /* 讓圖標和文字水平對齊 */
+        align-items: center; /* 讓文字居中對齊 */
+        justify-content: center; /* 讓文字在按鈕中間水平居中 */
+    }
+
+
+        /* 懸停效果 */
+        .custom-btn:hover {
+            background-color: #499e73; /* 懸停時使用更深的綠色 */
+            transform: translateY(-2px); /* 懸停時按鈕輕微上移 */
+        }
+
+    #searchButton {
+        background-color: #f1f1f1; /* 使用綠色作為背景色 */
+        color: dimgrey; /* 文字顏色為白色 */
+        border: #74C69D; /* 使用深綠色作為邊框 */
+    }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    let salesChartInstance = null;
+    let membersChartInstance = null;
+
+    document.addEventListener('DOMContentLoaded', function () {
+        // 頁面加載時立即抓取數據
+        fetchReportData();
+
+        // 綁定搜尋按鈕的點擊事件
+        document.getElementById('searchButton').addEventListener('click', function () {
+            fetchReportData();
+        });
+    });
+
+    function fetchReportData() {
+        var startMonth = document.getElementById('startMonth').value;
+        var endMonth = document.getElementById('endMonth').value;
+
+        var query = '';
+        if (startMonth && endMonth) {
+            query = `?startMonth=${startMonth}&endMonth=${endMonth}`;
+        }
+
+        // 發送 AJAX 請求到後端
+        fetch('@Url.Action("GetReportData2", "Report")' + query)
+            .then(response => response.json())
+            .then(data => {
+                updateSalesChart(data.SalesData);
+                updateMembersChart(data.SalesData);
+            })
+            .catch(error => console.error('Error fetching report data:', error));
+    }
+
+    function updateSalesChart(salesData) {
+        var salesCtx = document.getElementById('salesChart').getContext('2d');
+        var salesLabels = salesData.map(d => d.Month + "月");
+        var salesValues = salesData.map(d => d.TotalSales);
+
+        // 如果之前有 salesChartInstance，銷毀它
+        if (salesChartInstance) {
+            salesChartInstance.destroy();
+        }
+
+        // 創建新的圖表實例
+        salesChartInstance = new Chart(salesCtx, {
+            type: 'bar',
+            data: {
+                labels: salesLabels,
+                datasets: [{
+                    label: '營業額',
+                    data: salesValues,
+                    backgroundColor: 'rgba(255, 206, 86, 0.2)',
+                    borderColor: 'rgba(255, 206, 86, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: '月份'
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        stepSize: 20000  // Y軸以 20000 為區間
+                    }
+                }
+            }
+        });
+    }
+
+    function updateMembersChart(salesData) {
+        var membersCtx = document.getElementById('membersChart').getContext('2d');
+        var membersLabels = salesData.map(d => d.Month + "月");
+        var membersValues = salesData.map(d => d.TotalMembers);
+
+        // 如果之前有 membersChartInstance，銷毀它
+        if (membersChartInstance) {
+            membersChartInstance.destroy();
+        }
+
+        // 創建新的圖表實例
+        membersChartInstance = new Chart(membersCtx, {
+            type: 'line',
+            data: {
+                labels: membersLabels,
+                datasets: [{
+                    label: '會員數',
+                    data: membersValues,
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: '月份'
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        stepSize: 10  // Y軸以 10 為區間
+                    }
+                }
+            }
+        });
+    }
+</script>
+
+<style>
+    .container {
+        margin-top: 20px;
+    }
+
+    .charts {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    canvas {
+        width: 100%; /* 保證圖表寬度適應容器 */
+        height: 300px;
+    }
+
+    .header {
+        margin-bottom: 20px;
+        gap: 10px; /* 縮小元素之間的距離 */
+    }
+
+        .header label {
+            white-space: nowrap; /* 確保標籤不換行 */
+        }
+</style>

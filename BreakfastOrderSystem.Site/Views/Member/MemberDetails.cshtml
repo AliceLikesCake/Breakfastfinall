@@ -1,0 +1,365 @@
+﻿@model IEnumerable<BreakfastOrderSystem.Site.Models.ViewModels.MemberDetailVm>
+
+@{
+    ViewBag.Title = "MemberDetails";
+}
+
+<h2 class="fw-bold mt-2 ">會員明細</h2>
+
+<div class="row mb-3" style="margin-bottom: 10px;">
+    <div class="col-12">
+        <div class="d-flex justify-content-end" style="margin-bottom:7px;">
+            <div class="d-flex align-items-center">
+                <div class="input-group me-2">
+                    <span class="input-group-text" id="basic-addon1">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </span>
+                    <input type="text" id="searchInput" class="form-control" placeholder="請輸入會員姓名" aria-label="Username" aria-describedby="basic-addon1">
+                </div>
+                <button type="button" class="custom-btn" id="searchButton" style="width: 100px;">搜尋</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<table class="custom-table">
+    <thead>
+        <tr>
+            <th>會員名稱</th>
+            <th>電子郵件</th>
+            <th>電話</th>
+            <th>點數</th>
+            <th>註冊日</th>
+        </tr>
+    </thead>
+    
+    <tbody id="memberDetailTableBody">
+        <!-- 這裡將由 JavaScript 動態填充 -->
+    </tbody>
+
+</table>
+
+@*分頁*@
+<nav aria-label="Page navigation">
+    <ul class="pagination" id="pagination">
+        <!-- 分頁按鈕將由 JavaScript 動態填充 -->
+    </ul>
+</nav>
+<style>
+    /* **************************************分頁項的基本樣式 *************************************************************/
+    .page-item {
+        display: inline-block;
+        margin: 0 5px; /* 每個分頁按鈕之間的間距 */
+    }
+
+    /* 分頁鏈接的基本樣式 */
+    .page-link {
+        display: block;
+        /*padding: 8px 12px;*/ /* 調整內邊距，讓按鈕更大一些 */
+        background-color: #DFF3EC; /* 淡綠色背景 */
+        color: #333; /* 文字顏色 */
+        border-radius: 5px; /* 圓角 */
+        text-decoration: none; /* 去除默認的下劃線 */
+        font-weight: bold;
+        transition: background-color 0.3s ease, color 0.3s ease; /* 添加過渡效果 */
+    }
+
+    /* 當前頁面的樣式 */
+    .page-item.active .page-link {
+        background-color: #499e73; /* 深綠色背景 */
+        color: white; /* 白色文字 */
+        cursor: default; /* 當前頁面不允許點擊 */
+        border: none !important;
+    }
+
+    /* 分頁鏈接的懸停樣式 */
+    .page-link:hover {
+        background-color: #74c69d; /* 懸停時的顏色 */
+        color: white;
+    }
+
+    /* 禁用上一頁/下一頁時的樣式 */
+    .page-item.disabled .page-link {
+        background-color: #f0f0f0; /* 灰色背景 */
+        color: #ccc; /* 灰色文字 */
+        cursor: not-allowed; /* 禁用的鼠標樣式 */
+    }
+
+    .pagination {
+        position: fixed;
+        bottom: 60px; /* 距離底部 20px */
+        left: 55%; /* 使其相對於頁面水平居中 */
+        transform: translateX(-50%); /* 偏移自身寬度的一半，達到真正居中效果 */
+        z-index: 1000; /* 確保分頁按鈕位於其他元素之上 */
+        /*background-color: #f8f9fa;*/ /* 背景顏色 */
+        padding: 10px 20px;
+        border-radius: 5px; /* 圓角 */
+        /*box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);*/ /* 添加陰影效果 */
+    }
+
+    /* *************************************************表格樣式 ***********************************************************/
+    table.custom-table {
+        width: 100%; /* 表格寬度全屏 */
+        border-collapse: collapse; /* 去除單元格邊距 */
+        margin-top: 20px;
+    }
+
+        table.custom-table th,
+        table.custom-table td {
+            border: 1px solid #ddd; /* 輕微的灰色邊框 */
+            padding: 12px; /* 單元格內的填充 */
+            text-align: center; /* 內容居中 */
+            vertical-align: middle; /* 垂直居中 */
+        }
+
+        /* 表頭樣式 */
+        table.custom-table th {
+            background-color: #74C69D; /* 使用綠色作為背景色 */
+            color: white; /* 白色文字 */
+            font-weight: bold;
+            text-transform: uppercase; /* 表頭大寫 */
+        }
+
+        /* 表格行背景 */
+        table.custom-table tbody tr:nth-child(even) {
+            background-color: #f9f9f9; /* 偶數行使用淡灰色 */
+        }
+
+        /* 懸停效果 */
+        table.custom-table tbody tr:hover {
+            background-color: #eff4f2; /* 懸停時使用非常淺的綠色 */
+        }
+
+        /* 圖片樣式 */
+        table.custom-table img {
+            width: 50px;
+            height: auto;
+            border-radius: 5px; /* 圖片圓角 */
+        }
+    /* 表格懸停效果 */
+    tr:hover {
+        background-color: #DFF3EC; /* 使用非常淺的綠色 */
+    }
+
+    /* 懸停時表格行的背景顏色變化 */
+    tr:hover {
+        background-color: #f9f9f9;
+    }
+
+    /* 表格標題的樣式 */
+    th {
+        background-color: #5fae87;
+        color: white;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+
+    /* 針對小型螢幕的響應式設計 */
+    @@media (max-width: 768px) {
+        table {
+            font-size: 12px;
+        }
+
+        a.btn {
+            padding: 6px 10px;
+        }
+    }
+    /*****************************************按扭樣式******************************************/
+    /* 通用按鈕樣式 */
+    .custom-btn {
+        display: inline-block;
+        padding: 8px 15px;
+        border-radius: 5px;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: bold;
+        color: white;
+        margin-right: 10px;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+        /*display: inline-flex;*/ /* 讓圖標和文字水平對齊 */
+        align-items: center; /* 讓文字居中對齊 */
+        justify-content: center; /* 讓文字在按鈕中間水平居中 */
+    }
+
+
+        /* 懸停效果 */
+        .custom-btn:hover {
+            background-color: #499e73; /* 懸停時使用更深的綠色 */
+            transform: translateY(-2px); /* 懸停時按鈕輕微上移 */
+        }
+
+    #searchButton {
+        background-color: #f1f1f1; /* 使用綠色作為背景色 */
+        color: dimgrey; /* 文字顏色為白色 */
+        border: #74C69D; /* 使用深綠色作為邊框 */
+    }
+
+    td i {
+        color: mediumpurple;
+        
+    }
+</style>
+
+
+@section Scripts{
+    <script>
+
+        // 格式化日期函數
+        function formatDate(dateString) {
+            console.log(dateString)
+            // 如果日期字符串是 /Date(1725120000000)/ 格式
+            if (dateString.startsWith("/Date(") && dateString.endsWith(")/")) {
+                // 提取毫秒數部分
+                const milliseconds = parseInt(dateString.substring(6, dateString.length - 2), 10);
+                const date = new Date(milliseconds);
+                if (isNaN(date.getTime())) {
+                    // 檢查日期是否有效
+                    return 'Invalid Date';
+                }
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0'); // 月份從 0 開始，需要加 1，並確保有兩位數
+                const day = String(date.getDate()).padStart(2, '0'); // 確保日期有兩位數
+                return `${year}/${month}/${day}`;
+            }
+
+            // 如果是其他格式
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) {
+                return 'Invalid Date';
+            }
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0'); // 月份從 0 開始，需要加 1，並確保有兩位數
+            const day = String(date.getDate()).padStart(2, '0'); // 確保日期有兩位數
+            return `${year}/${month}/${day}`;
+        }
+
+
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const maxRows = 5; // 每頁顯示的最大行數
+            let currentPage = 1; // 當前頁面
+
+            // 將 Razor 模型數據序列化為 JavaScript 對象
+            let originalData = @Html.Raw(Json.Encode(Model));
+            let filteredData = originalData;
+
+            const searchInput = document.getElementById("searchInput");
+            const searchButton = document.getElementById("searchButton");
+
+            searchButton.addEventListener("click", () => {
+                const searchTerm = searchInput.value.trim().toLowerCase();
+
+                if (searchTerm === "") {
+                    // 如果搜尋框為空，顯示所有會員
+                    filteredData = originalData;
+                } else {
+                    // 根據會員姓名篩選資料
+                    filteredData = originalData.filter(member =>
+                        member.Name.toLowerCase().includes(searchTerm)
+                    );
+                }
+
+                // 重置當前頁
+                currentPage = 1;
+
+                // 重新渲染表格和分頁
+                renderTable(currentPage);
+            });
+
+            function renderTable(page) {
+                const totalPages = Math.ceil(filteredData.length / maxRows);
+                const tbody = document.getElementById("memberDetailTableBody");
+                tbody.innerHTML = ""; // 清空表格內容
+
+                const start = (page - 1) * maxRows;
+                const end = Math.min(start + maxRows, filteredData.length);
+
+                for (let i = start; i < end; i++) {
+                    const member = filteredData[i];
+                    const icon = isInBlacklist(member);
+                    const row = document.createElement("tr");
+
+                    row.innerHTML = `
+                        <td>${member.Name} ${icon}</td>
+                        <td>${member.Account}</td>
+                        <td>${member.Phone}</td>
+                        <td>${member.Points}</td>
+                        <td>${formatDate(member.RegistrationDate)}</td>
+                    `;
+
+                    tbody.appendChild(row);
+                }
+
+                // 渲染分頁按鈕
+                renderPagination(totalPages);
+            }
+
+            function isInBlacklist(member) {
+                console.log("BlackList status: ", member.BlackList); // For debugging
+                if (member.BlackList === true || member.BlackList === 1 || member.BlackList === "true") {
+                    return `<i class="fa-solid fa-skull" style="font-size: 15px;"></i>`;
+                } else {
+                    return "";
+                }
+            }
+
+            function renderPagination(totalPages) {
+                const pagination = document.getElementById("pagination");
+                pagination.innerHTML = ""; // 清空舊的分頁按鈕
+
+                const prevPage = document.createElement("li");
+                prevPage.classList.add("page-item");
+                prevPage.innerHTML = `
+                    <a class="page-link" href="#" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>`;  
+
+                prevPage.addEventListener("click", () => {
+                    if (currentPage > 1) {
+                        currentPage--;
+                        renderTable(currentPage);
+                    }
+                });
+                pagination.appendChild(prevPage);
+
+                for (let i = 1; i <= totalPages; i++) {
+                    const pageItem = document.createElement("li");
+                    pageItem.classList.add("page-item");
+                    if (i === currentPage) {
+                        pageItem.classList.add("active");
+                    }
+                    pageItem.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+                    pageItem.addEventListener("click", () => {
+                        currentPage = i;
+                        renderTable(currentPage);
+                    });
+                    pagination.appendChild(pageItem);
+                }
+
+                const nextPage = document.createElement("li");
+                nextPage.classList.add("page-item");
+                nextPage.innerHTML = `
+                    <a class="page-link" href="#" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>`;
+                nextPage.addEventListener("click", () => {
+                    if (currentPage < totalPages) {
+                        currentPage++;
+                        renderTable(currentPage);
+                    }
+                });
+                pagination.appendChild(nextPage);
+            }
+
+            // 初始化顯示首頁
+            renderTable(currentPage);
+        });
+
+
+
+    </script>
+    
+    
+    
+    }
