@@ -40,7 +40,7 @@
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="IsSingleChoice" class="col-form-label form-label-custom">選擇模式:<span class="required">*</span></label>
-                                            <select class="form-control" id="IsSingleChoice" name="IsSingleChoice">
+                                            <select class="form-select" id="IsSingleChoice" name="IsSingleChoice">
                                                 <option value="true">單選</option>
                                                 <option value="false">複選</option>
                                             </select>
@@ -828,6 +828,7 @@
                 if (editIndex === -1) {
                     // 新增模式下，將新選項加入陣列
                     options.push({
+                      
                         Name: optionName,
                         Price: optionPrice,
                         DisplayOrder: optionDisplayOrder
@@ -835,6 +836,7 @@
                 } else {
                     // 更新模式下，更新選項
                     options[editIndex] = {
+                        
                         Name: optionName,
                         Price: optionPrice,
                         DisplayOrder: optionDisplayOrder
@@ -902,8 +904,9 @@
                     const option = options[index];
 
                     // 將選項資料填回表單
-                    document.getElementById("AddOnOptionName").value = option.Name;
                     document.getElementById("Price").value = option.Price;
+                    document.getElementById("AddOnOptionName").value = option.Name;
+                    
                     document.getElementById("OptionDisplayOrder").value = option.DisplayOrder;
 
                     // 設定編輯索引
@@ -939,7 +942,7 @@
                 if (mode === 'edit') {
                     formData.Id = addOnCategoryId;
                 }
-
+            console.log(formData)
                 $.ajax({
                     url: $('#createAddOnOptionForm').attr('action'), // 使用當前表單的 action
                     type: 'POST',
@@ -975,10 +978,11 @@
                                         DisplayOrder: response.data.DisplayOrder,
                                         Options: response.data.Options // 包含選項資料
                                     };
-                                    console.log(createdCategory)
+                                    
 
                                     // 將新的類別加入到 filteredData
                                     filteredData.push(createdCategory);
+                                    console.log(createdCategory)
 
                                     // 計算新類別的頁碼
                                     const totalItems = filteredData.length; // 總數據量

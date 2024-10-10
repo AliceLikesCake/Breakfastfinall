@@ -185,6 +185,7 @@ namespace BreakfastOrderSystem.Site.Models.Repositories
                     else
                     {
                         // 更新現有的選項
+                        
                         existingOption.Name = dtoOption.Name;
                         existingOption.Price = dtoOption.Price;
                         existingOption.DisplayOrder = dtoOption.DisplayOrder;

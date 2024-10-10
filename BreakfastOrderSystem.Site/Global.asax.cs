@@ -28,6 +28,8 @@ namespace BreakfastOrderSystem.Site
                 cfg.AddProfile<MappingProfile>();
             });
 
+           
+
             _mapper = config.CreateMapper();
         }
     }

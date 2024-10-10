@@ -25,7 +25,7 @@
                         <div class="modal-body">
                             @using (Html.BeginForm("Create", "Product", FormMethod.Post, new { id = "createProductForm", enctype = "multipart/form-data" }))
                             {
-                                
+
                                 <div class="modal-body">
 
 
@@ -40,7 +40,7 @@
                                         <!-- 商品類別與商品名稱 -->
                                         <div class="dropdown-group col-md-6">
                                             <label for="ProductCategory" class="col-form-label form-label-custom">商品類別:<span class="required">*</span></label>
-                                            <select class="form-control" id="ProductCategory" name="ProductCategory">
+                                            <select class="form-select" id="ProductCategory" name="ProductCategory">
                                                 <option value="">請選擇</option>
                                             </select>
                                         </div>
@@ -64,7 +64,7 @@
                                             <div class="dropdown-group col-md-6">
                                                 <label for="AddOnCategory" class="col-form-label form-label-custom">加選類別:</label>
                                                 <div class="d-flex align-items-center">
-                                                    <select class="form-control" id="AddOnCategory" name="AddOnCategory" style="width: 70%;">
+                                                    <select class="form-select" id="AddOnCategory" name="AddOnCategory" style="width: 70%;">
                                                         <option value="">請選擇</option>
                                                     </select>
                                                     <button class="btn btn-secondary btn-add" id="addOnbtn" type="button" style="margin-left: 15px; width: 20%;">新增</button>
@@ -72,14 +72,14 @@
                                             </div>
 
                                             <div class="form-group col-md-6">
-                                                <label for="addOnDetail" class="col-form-label form-label-custom" >已選取的加選類別:</label>
+                                                <label for="addOnDetail" class="col-form-label form-label-custom">已選取的加選類別:</label>
                                                 <div id="addOnDetail" class="form-control d-flex flex-wrap" rows="2" style="margin-right: 10px;"></div>
                                             </div>
                                         </div>
 
 
                                         <!-- 是否上架 -->
-                                        <div class="form-group col-md-6"style="margin-top: 20px"; >
+                                        <div class="form-group col-md-6" style="margin-top: 20px" ;>
                                             <label for="IsAvailable" class="col-form-label form-label-custom" style="margin-left: 3px;">是否上架:<span class="required">*</span></label>
                                             <div class="form-check-inline">
                                                 <input class="form-check-input" type="radio" name="IsAvailable" id="IsAvailableYes" value="true" checked>
@@ -92,7 +92,7 @@
                                         </div>
 
                                         <!-- 上傳圖片 -->
-                                        <div class="form-group col-md-6"style="margin-top: 20px";>
+                                        <div class="form-group col-md-6" style="margin-top: 20px" ;>
                                             <label class="form-check-label me-3 form-label-custom" for="Image">上傳圖片：<span class="required">*</span></label>
                                             <button id="upload-img-btn" class="btn btn-secondary btn-add" type="button">上傳</button>
                                             <input type="file" id="upload-img" name="Image" class="d-none" accept="image/*" />
@@ -228,17 +228,17 @@
         /*box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);*/ /* 添加陰影效果 */
     }
 
-/***********************************************************model樣式**************************************************************/
-    .modal-title{
-        font-weight:bolder;
+    /***********************************************************model樣式**************************************************************/
+    .modal-title {
+        font-weight: bolder;
     }
 
     .required {
         color: red; /* 将 * 标记设置为红色 */
         font-weight: bold; /* 加粗以示强调 */
-    }    
+    }
 
-#addOnDetail {
+    #addOnDetail {
         height: 40px; /* 设置高度 */
         min-height: 40px; /* 最小高度 */
         overflow-y: auto; /* 内容超出时添加滚动条 */
@@ -312,7 +312,7 @@
         button:hover, .btn-secondary:hover, .btn-add:hover {
             background-color: #499e73; /* 深綠色背景 */
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); /* 添加陰影 */
-            color:white;
+            color: white;
         }
 
         /* 禁用狀態按鈕樣式 */
@@ -355,7 +355,6 @@
         border-radius: 5px;
         padding: 10px;
         min-height: 50px;
-       
     }
 
     /* 上傳圖片區域 */
@@ -412,7 +411,7 @@
         }
 
 
-/*******************************************按扭樣式*****************************************************************/
+    /*******************************************按扭樣式*****************************************************************/
     #showModalBtn {
         margin-top: 10px;
         margin-left: -10px; /* 向左移動 20px，值可以根據需求調整 */
@@ -429,17 +428,17 @@
         box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.1); /* 陰影效果 */
     }
 
-    #showModalBtn:hover {
-        color:white;
-        background-color: #499e73 !important; /* 深綠色背景 */
-        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1); /* 改變陰影讓按鈕看起來被按下去 */
-        transform: translateY(2px); /* 輕微向下移動，讓它看起來像是被按下去 */
-    }
+        #showModalBtn:hover {
+            color: white;
+            background-color: #499e73 !important; /* 深綠色背景 */
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1); /* 改變陰影讓按鈕看起來被按下去 */
+            transform: translateY(2px); /* 輕微向下移動，讓它看起來像是被按下去 */
+        }
 
-    #showModalBtn:active {
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.1); /* 更小的陰影效果，模擬按下 */
-        transform: translateY(4px); /* 按下時進一步移動 */
-    }
+        #showModalBtn:active {
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.1); /* 更小的陰影效果，模擬按下 */
+            transform: translateY(4px); /* 按下時進一步移動 */
+        }
 
     /* 通用按鈕樣式 */
     .custom-btn {
@@ -459,11 +458,11 @@
     }
 
 
-    /* 懸停效果 */
-    .custom-btn:hover {
-        background-color: #499e73; /* 懸停時使用更深的綠色 */
-        transform: translateY(-2px); /* 懸停時按鈕輕微上移 */
-    }
+        /* 懸停效果 */
+        .custom-btn:hover {
+            background-color: #499e73; /* 懸停時使用更深的綠色 */
+            transform: translateY(-2px); /* 懸停時按鈕輕微上移 */
+        }
 
     /* 修改按鈕的樣式 */
     .edit-btn {
@@ -472,11 +471,11 @@
         border: 1px solid #74C69D; /* 使用深綠色作為邊框 */
     }
 
-    .edit-btn:hover {
-        background-color: #74C69D; /* 懸停時變成更深的綠色 */
-        color: white;
-        transform: translateY(-2px); /* 懸停時按鈕輕微上移 */
-    }
+        .edit-btn:hover {
+            background-color: #74C69D; /* 懸停時變成更深的綠色 */
+            color: white;
+            transform: translateY(-2px); /* 懸停時按鈕輕微上移 */
+        }
 
     /* 刪除按鈕的樣式 */
     .delete-btn {
@@ -485,11 +484,11 @@
         border: 1px solid rgb(201, 101, 101);
     }
 
-    .delete-btn:hover {
-        background-color: rgb(201, 101, 101);
-        color: white;
-        transform: translateY(-2px); /* 懸停時按鈕輕微上移 */
-    }
+        .delete-btn:hover {
+            background-color: rgb(201, 101, 101);
+            color: white;
+            transform: translateY(-2px); /* 懸停時按鈕輕微上移 */
+        }
 
     #searchButton {
         background-color: #f1f1f1; /* 使用綠色作為背景色 */
@@ -527,7 +526,7 @@
         color: white;
         padding: 5px;
         border-radius: 5px;
-        margin-left:3px;
+        margin-left: 3px;
     }
     /* *************************************************表格樣式 ***********************************************************/
     table.custom-table {
@@ -536,72 +535,69 @@
         margin-top: 20px;
     }
 
-    table.custom-table th,
-    table.custom-table td {
-        border: 1px solid #ddd; /* 輕微的灰色邊框 */
-        padding: 12px; /* 單元格內的填充 */
-        text-align: center; /* 內容居中 */
-        vertical-align: middle; /* 垂直居中 */
-    }
+        table.custom-table th,
+        table.custom-table td {
+            border: 1px solid #ddd; /* 輕微的灰色邊框 */
+            padding: 12px; /* 單元格內的填充 */
+            text-align: center; /* 內容居中 */
+            vertical-align: middle; /* 垂直居中 */
+        }
 
-    /* 表頭樣式 */
-    table.custom-table th {
-        background-color: #74C69D; /* 使用綠色作為背景色 */
-        color: white; /* 白色文字 */
-        font-weight: bold;
-        text-transform: uppercase; /* 表頭大寫 */
-    }
+        /* 表頭樣式 */
+        table.custom-table th {
+            background-color: #74C69D; /* 使用綠色作為背景色 */
+            color: white; /* 白色文字 */
+            font-weight: bold;
+            text-transform: uppercase; /* 表頭大寫 */
+        }
 
-    /* 表格行背景 */
-    table.custom-table tbody tr:nth-child(even) {
-        background-color: #f9f9f9; /* 偶數行使用淡灰色 */
-    }
+        /* 表格行背景 */
+        table.custom-table tbody tr:nth-child(even) {
+            background-color: #f9f9f9; /* 偶數行使用淡灰色 */
+        }
 
-    /* 懸停效果 */
-    table.custom-table tbody tr:hover {
-        background-color: #eff4f2; /* 懸停時使用非常淺的綠色 */
-    }
+        /* 懸停效果 */
+        table.custom-table tbody tr:hover {
+            background-color: #eff4f2; /* 懸停時使用非常淺的綠色 */
+        }
 
-    /* 圖片樣式 */
-    table.custom-table img {
-        width: 50px;
-        height: auto;
-        border-radius: 5px; /* 圖片圓角 */
-    }
+        /* 圖片樣式 */
+        table.custom-table img {
+            width: 50px;
+            height: auto;
+            border-radius: 5px; /* 圖片圓角 */
+        }
     /* 表格懸停效果 */
     tr:hover {
         background-color: #DFF3EC; /* 使用非常淺的綠色 */
     }
 
-/* 懸停時表格行的背景顏色變化 */
-tr:hover {
-    background-color: #f9f9f9;
-}
-
-/* 表格標題的樣式 */
-th {
-    background-color: #5fae87;
-    color: white;
-    font-weight: bold;
-    text-transform: uppercase;
-}
-
-/* 針對小型螢幕的響應式設計 */
-@@media (max-width: 768px) {
-    table {
-        font-size: 12px;
+    /* 懸停時表格行的背景顏色變化 */
+    tr:hover {
+        background-color: #f9f9f9;
     }
 
-    a.btn {
-        padding: 6px 10px;
+    /* 表格標題的樣式 */
+    th {
+        background-color: #5fae87;
+        color: white;
+        font-weight: bold;
+        text-transform: uppercase;
     }
-}
 
+    /* 針對小型螢幕的響應式設計 */
+    @@media (max-width: 768px) {
+        table {
+            font-size: 12px;
+        }
 
-
+        a.btn {
+            padding: 6px 10px;
+        }
+    }
 </style>
 @section Scripts{
- <script>
+    <script>
 
     //--------------------------------------------------------一開始顯示幾頁-----------------------------------------------------//
     document.addEventListener("DOMContentLoaded", () => {
@@ -716,6 +712,7 @@ th {
                                 $("#ProductName").val(response.data.Name);
                                 $("#Price").val(response.data.Price);
                                 $("#DisplayOrder").val(response.data.DisplayOrder);
+
                                 $("input[name='IsAvailable'][value='" + response.data.IsAvailable + "']").prop('checked', true);
                                 console.log(response);
                                 loadProductCategories(response.data.ProductCategoryId);
@@ -742,7 +739,7 @@ th {
 
                                 // 處理圖片顯示
                                 if (response.data.Image) {
-                                    $("#file-name-text").text(response.data.Image.split('/').pop()); // 顯示圖片名稱
+                                    $("#file-name-text").text(response.data.Image); // 顯示圖片名稱
                                     $("#file-name-container").show();
                                 } else {
                                     $("#file-name-text").text('');
@@ -993,7 +990,7 @@ th {
 
         document.getElementById("saveProductBtn").addEventListener("click", function () {
             // 獲取產品基本資料
-            var url = $('#createCategoryForm').attr('action');
+            var url = $('#createProductForm').attr('action');
             const mode = document.getElementById("Mode").value;
             const ProductId = document.getElementById("Id").value;
             const productCategoryId = document.getElementById("ProductCategory").value;
@@ -1029,9 +1026,9 @@ th {
             formData.append("Price", price);
             formData.append("IsAvailable", isAvailable);
             formData.append("DisplayOrder", displayOrder);
-            if (image) {
-                formData.append("Image", image); // 將圖片添加到表單
-            }
+            
+            formData.append("Image", image); // 將圖片添加到表單
+            
 
             formData.append("AddOnDetailsJson", JSON.stringify(addOnDetails)); // 轉換加選項目為JSON字符串
 
@@ -1214,18 +1211,18 @@ th {
             }
         });
         ////---------------------------------------------------刪除照片------------------------------------------------------------//
-        document.getElementById("delete-img-btn").addEventListener("click", function () {
-            // 設置隱藏字段為 true，表示用戶選擇刪除圖片
-            document.getElementById("deleteImageField").value = "true";
+        //document.getElementById("delete-img-btn").addEventListener("click", function () {
+        //    // 設置隱藏字段為 true，表示用戶選擇刪除圖片
+        //    document.getElementById("deleteImageField").value = "true";
 
-            // 清空文件選擇器的值
-            document.getElementById("upload-img").value = '';
+        //    // 清空文件選擇器的值
+        //    document.getElementById("upload-img").value = '';
 
-            // 隱藏圖片名稱提示
-            document.getElementById("file-name-container").style.display = 'none';
+        //    // 隱藏圖片名稱提示
+        //    document.getElementById("file-name-container").style.display = 'none';
 
-            alert("圖片已刪除，您可以重新上傳或保持無圖片。");
-        });
+        //    alert("圖片已刪除，您可以重新上傳或保持無圖片。");
+        //});
 
         // -----------------------------------------當 modal 隱藏時清空文件選擇器和提示----------------------------------------------//
 
@@ -1235,7 +1232,7 @@ th {
         });
 
 
- </script>
+    </script>
 
 
 

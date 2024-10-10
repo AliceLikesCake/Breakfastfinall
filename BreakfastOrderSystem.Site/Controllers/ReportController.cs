@@ -1,6 +1,7 @@
 ﻿using BreakfastOrderSystem.Site.Models.EFModels;
 using BreakfastOrderSystem.Site.Models.ViewModels;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Web.Mvc;
@@ -118,17 +119,40 @@ namespace BreakfastOrderSystem.Site.Controllers
                 })
                 .ToList();
 
-            // 將沒有數據的月份補全，確保每個月份都顯示
+            // 手動加入1到8月的假資料
+            var fakeData = new List<SalesDataVm>
+                {
+                    new SalesDataVm { Month = 1, TotalSales = 120000, TotalMembers = 120 },
+                    new SalesDataVm { Month = 2, TotalSales = 130000, TotalMembers = 110 },
+                    new SalesDataVm { Month = 3, TotalSales = 90000, TotalMembers = 115 },
+                    new SalesDataVm { Month = 4, TotalSales = 150000, TotalMembers = 125 },
+                    new SalesDataVm { Month = 5, TotalSales = 170000, TotalMembers = 130 },
+                    new SalesDataVm { Month = 6, TotalSales = 140000, TotalMembers = 105 },
+                    new SalesDataVm { Month = 7, TotalSales = 160000, TotalMembers = 140 },
+                    new SalesDataVm { Month = 8, TotalSales = 180000, TotalMembers = 135 },
+                    new SalesDataVm { Month = 9, TotalSales = 16500, TotalMembers = 129 }
+                };
+
+            // 將假資料和實際數據合併，但避免重複月份
             foreach (var month in selectedMonths)
             {
                 if (!salesData.Any(d => d.Month == month.Month))
                 {
-                    salesData.Add(new SalesDataVm
+                    // 如果該月份沒有實際數據，從假資料中找出對應月份的數據
+                    var fakeMonthData = fakeData.FirstOrDefault(f => f.Month == month.Month);
+                    if (fakeMonthData != null)
                     {
-                        Month = month.Month,
-                        TotalSales = 0,
-                        TotalMembers = 0
-                    });
+                        salesData.Add(fakeMonthData);
+                    }
+                    else
+                    {
+                        salesData.Add(new SalesDataVm
+                        {
+                            Month = month.Month,
+                            TotalSales = 0,
+                            TotalMembers = 0
+                        });
+                    }
                 }
             }
 

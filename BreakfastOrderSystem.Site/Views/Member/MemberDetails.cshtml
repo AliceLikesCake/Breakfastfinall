@@ -32,7 +32,7 @@
             <th>註冊日</th>
         </tr>
     </thead>
-    
+
     <tbody id="memberDetailTableBody">
         <!-- 這裡將由 JavaScript 動態填充 -->
     </tbody>
@@ -197,17 +197,15 @@
 
     td i {
         color: mediumpurple;
-        
     }
 </style>
 
 
 @section Scripts{
     <script>
-
         // 格式化日期函數
         function formatDate(dateString) {
-            console.log(dateString)
+            console.log(dateString);
             // 如果日期字符串是 /Date(1725120000000)/ 格式
             if (dateString.startsWith("/Date(") && dateString.endsWith(")/")) {
                 // 提取毫秒數部分
@@ -233,8 +231,6 @@
             const day = String(date.getDate()).padStart(2, '0'); // 確保日期有兩位數
             return `${year}/${month}/${day}`;
         }
-
-
 
         document.addEventListener("DOMContentLoaded", () => {
             const maxRows = 5; // 每頁顯示的最大行數
@@ -313,7 +309,7 @@
                 prevPage.innerHTML = `
                     <a class="page-link" href="#" aria-label="Previous">
                         <span aria-hidden="true">&laquo;</span>
-                    </a>`;  
+                    </a>`;
 
                 prevPage.addEventListener("click", () => {
                     if (currentPage > 1) {
@@ -323,7 +319,16 @@
                 });
                 pagination.appendChild(prevPage);
 
-                for (let i = 1; i <= totalPages; i++) {
+                // 計算顯示的頁碼範圍
+                let startPage = Math.max(1, currentPage - 2); // 起始頁碼
+                let endPage = Math.min(totalPages, startPage + 4); // 終止頁碼
+
+                // 調整起始頁碼，如果終止頁碼不足 5 頁
+                if (endPage - startPage < 4) {
+                    startPage = Math.max(1, endPage - 4); // 確保至少顯示 5 頁
+                }
+
+                for (let i = startPage; i <= endPage; i++) {
                     const pageItem = document.createElement("li");
                     pageItem.classList.add("page-item");
                     if (i === currentPage) {
@@ -355,11 +360,5 @@
             // 初始化顯示首頁
             renderTable(currentPage);
         });
-
-
-
     </script>
-    
-    
-    
-    }
+}
